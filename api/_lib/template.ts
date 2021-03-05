@@ -4,6 +4,7 @@ import marked from 'marked';
 import { sanitizeHtml } from './sanitizer';
 import { ParsedRequest } from './types';
 const twemoji = require('twemoji');
+const atob = require('atob');
 const twOptions = { folder: 'svg', ext: '.svg' };
 const emojify = (text: string) => twemoji.parse(text, twOptions);
 
@@ -108,7 +109,9 @@ function getCss(theme: string, fontSize: string) {
 }
 
 export function getHtml(parsedReq: ParsedRequest) {
-    const { text, theme, md, fontSize, images, widths, heights } = parsedReq;
+    const { text, theme, md, fontSize, images, widths, heights, base64 } = parsedReq;
+    const clearText = base64 ? atob(text) : text;
+
     return `<!DOCTYPE html>
 <html>
     <meta charset="utf-8">
@@ -125,7 +128,7 @@ export function getHtml(parsedReq: ParsedRequest) {
                 ).join('')}
             </div>
             <div class="heading">${emojify(
-                md ? marked(text) : sanitizeHtml(text)
+                md ? marked(clearText) : sanitizeHtml(clearText)
             )}
             </div>
         </div>
